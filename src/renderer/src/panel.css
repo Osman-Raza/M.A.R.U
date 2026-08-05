@@ -1,0 +1,247 @@
+@import './styles.css';
+
+.panel {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, rgba(22, 27, 35, 0.94), rgba(14, 17, 22, 0.94));
+  backdrop-filter: blur(18px);
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  overflow: hidden;
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.42);
+  animation: panel-in 340ms cubic-bezier(0.16, 1.02, 0.3, 1.06) both;
+}
+
+.panel--loading {
+  opacity: 0.4;
+}
+
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+/* ---------- header ---------- */
+
+.p-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 15px 15px 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.p-day {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.p-date {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  margin-top: 3px;
+}
+
+.p-clock {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+  padding-top: 2px;
+}
+
+/* ---------- now / next strip ---------- */
+
+.p-now {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2px 9px;
+  align-items: baseline;
+  padding: 10px 15px;
+  border-bottom: 1px solid var(--line);
+  background: rgba(245, 165, 36, 0.05);
+}
+
+.p-now__tag {
+  grid-row: 1;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--signal);
+}
+
+.p-now[data-live='true'] .p-now__tag {
+  animation: breathe 2.2s ease-in-out infinite;
+}
+
+.p-now__course {
+  grid-row: 1;
+  font-size: 13.5px;
+  font-weight: 500;
+}
+
+.p-now__meta {
+  grid-column: 2;
+  grid-row: 2;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--muted);
+}
+
+/* ---------- sections ---------- */
+
+.p-scroll {
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}
+
+.p-sec {
+  padding: 12px 15px 4px;
+}
+
+.p-sec + .p-sec {
+  border-top: 1px solid rgba(38, 46, 58, 0.55);
+}
+
+.p-sec__h {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 7px;
+}
+
+.p-sec__h span {
+  font-size: 9px;
+  color: var(--line);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  padding: 0 4px;
+}
+
+.p-sec[data-tone='late'] .p-sec__h,
+.p-sec[data-tone='late'] .p-row__due {
+  color: var(--bad);
+}
+
+.p-sec[data-tone='late'] .p-sec__h span {
+  color: var(--bad);
+  border-color: rgba(239, 100, 97, 0.4);
+}
+
+.p-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* ---------- task rows ---------- */
+
+.p-row {
+  display: grid;
+  grid-template-columns: 13px 1fr auto;
+  gap: 9px;
+  align-items: start;
+  padding: 6px 0;
+}
+
+.p-check {
+  width: 12px;
+  height: 12px;
+  margin-top: 2px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: none;
+  cursor: pointer;
+  transition:
+    border-color 130ms ease,
+    background 130ms ease;
+}
+
+.p-check:hover {
+  border-color: var(--ok);
+  background: rgba(99, 210, 154, 0.18);
+}
+
+.p-row__main {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.p-row__title {
+  font-size: 12.5px;
+  line-height: 1.35;
+}
+
+.p-row__course {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--signal);
+}
+
+.p-row__due {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+  white-space: nowrap;
+  padding-top: 1px;
+}
+
+/* ---------- class rows ---------- */
+
+.p-class {
+  display: grid;
+  grid-template-columns: 42px 1fr auto;
+  gap: 9px;
+  align-items: baseline;
+  padding: 5px 0;
+  transition: opacity 160ms ease;
+}
+
+.p-class[data-past='true'] {
+  opacity: 0.38;
+}
+
+.p-class__time {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+
+.p-class__course {
+  font-size: 12px;
+}
+
+.p-class__room {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  color: var(--line);
+}
+
+.p-empty {
+  padding: 34px 15px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--muted);
+}
