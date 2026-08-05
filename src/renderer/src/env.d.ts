@@ -16,6 +16,7 @@ declare global {
       transcribe: (buffer: ArrayBuffer) => Promise<string>
       run: (transcript: string) => Promise<RunResult>
       board: () => Promise<any>
+      week: (offset: number) => Promise<any>
       complete: (id: number) => Promise<any>
       close: () => void
     }

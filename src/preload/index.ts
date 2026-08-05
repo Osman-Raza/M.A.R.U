@@ -17,6 +17,7 @@ const api = {
     ipcRenderer.invoke('assistant:transcribe', buffer),
   run: (transcript: string) => ipcRenderer.invoke('assistant:run', transcript),
   board: () => ipcRenderer.invoke('board:get'),
+  week: (offset: number) => ipcRenderer.invoke('board:week', offset),
   complete: (id: number) => ipcRenderer.invoke('board:complete', id),
   close: () => ipcRenderer.send('overlay:close')
 }

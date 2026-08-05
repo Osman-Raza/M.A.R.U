@@ -15,8 +15,8 @@ const CORNER = (process.env.MARU_PANEL_CORNER ?? 'top-right') as
 
 const OVERLAY_W = 680
 const OVERLAY_H = 320
-const PANEL_W = 312
-const PANEL_H = 440
+const PANEL_W = 420
+const PANEL_H = 700
 const MARGIN = 22
 
 function loadPage(win: BrowserWindow, page: string) {
@@ -184,6 +184,11 @@ ipcMain.handle('board:complete', async (_e, id: number) => {
   const dbmod = await import('./db')
   dbmod.completeById(id)
   return dbmod.getBoard()
+})
+
+ipcMain.handle('board:week', async (_e, offset: number) => {
+  const dbmod = await import('./db')
+  return dbmod.getWeek(offset)
 })
 
 app.on('will-quit', () => globalShortcut.unregisterAll())

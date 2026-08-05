@@ -34,13 +34,20 @@
   "build": {
     "appId": "dev.osman.maru",
     "productName": "MARU",
-    "files": ["out/**/*", "package.json"],
+    "files": [
+      "out/**/*",
+      "package.json"
+    ],
     "mac": {
       "category": "public.app-category.productivity",
       "extendInfo": {
         "NSMicrophoneUsageDescription": "MARU needs your microphone to hear voice commands."
       }
     },
-    "win": { "target": "nsis" }
-  }
+    "win": {
+      "target": "nsis"
+    }
+  },
+  "keywords": [],
+  "license": "ISC"
 }

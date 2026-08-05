@@ -237,3 +237,98 @@ export function getBoard() {
     ahead
   }
 }
+
+/* ------------------------------------------------------------------ week */
+
+const pad = (n: number) => String(n).padStart(2, '0')
+const localISO = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+
+function classesForWeekday(day: number) {
+  const rows = db
+    .prepare(
+      `SELECT c.code AS course, ct.start_min, ct.end_min, ct.location
+       FROM class_times ct JOIN courses c ON c.id = ct.course_id
+       WHERE ct.weekday = ? ORDER BY ct.start_min`
+    )
+    .all(day) as { course: string; start_min: number; end_min: number; location: string | null }[]
+
+  return rows.map((r) => ({
+    course: r.course,
+    start: fmtMin(r.start_min),
+    end: fmtMin(r.end_min),
+    start_min: r.start_min,
+    end_min: r.end_min,
+    location: r.location
+  }))
+}
+
+function tasksDueOn(isoDate: string): Task[] {
+  return db
+    .prepare(`${SELECT_TASK} WHERE t.done_at IS NULL AND date(t.due_at) = ? ORDER BY t.due_at`)
+    .all(isoDate) as Task[]
+}
+
+/**
+ * A Monday-anchored week. offset 0 is the current week, -1 the previous, and so on.
+ * Class blocks come from the recurring timetable; tasks are pinned to their own day.
+ */
+export function getWeek(offset = 0) {
+  const now = new Date()
+  const dow = now.getDay()
+  const monday = new Date(now)
+  monday.setDate(now.getDate() + (dow === 0 ? -6 : 1 - dow) + offset * 7)
+  monday.setHours(0, 0, 0, 0)
+
+  const todayISO = localISO(now)
+  let lo = Infinity
+  let hi = -Infinity
+
+  const days = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(monday)
+    d.setDate(monday.getDate() + i)
+    const iso = localISO(d)
+    const classes = classesForWeekday(d.getDay())
+
+    for (const c of classes) {
+      lo = Math.min(lo, c.start_min)
+      hi = Math.max(hi, c.end_min)
+    }
+
+    return {
+      iso,
+      label: WEEKDAYS[d.getDay()].slice(0, 3),
+      initial: WEEKDAYS[d.getDay()][0],
+      dayOfMonth: d.getDate(),
+      isToday: iso === todayISO,
+      isPast: iso < todayISO,
+      classes,
+      tasks: tasksDueOn(iso)
+    }
+  })
+
+  // Fall back to a normal school day when the timetable is still empty.
+  if (!Number.isFinite(lo)) {
+    lo = 8 * 60
+    hi = 18 * 60
+  }
+
+  const start = Math.max(0, Math.floor((lo - 30) / 60) * 60)
+  const end = Math.min(24 * 60, Math.ceil((hi + 30) / 60) * 60)
+
+  const first = days[0]
+  const last = days[6]
+  const sameMonth = first.iso.slice(5, 7) === last.iso.slice(5, 7)
+  const fmtRange = (iso: string, withMonth: boolean) => {
+    const d = new Date(`${iso}T12:00:00`)
+    return d.toLocaleDateString('en-CA', withMonth ? { month: 'short', day: 'numeric' } : { day: 'numeric' })
+  }
+
+  return {
+    offset,
+    range: `${fmtRange(first.iso, true)} – ${fmtRange(last.iso, !sameMonth)}`,
+    now_min: now.getHours() * 60 + now.getMinutes(),
+    bounds: { start, end },
+    days,
+    overdue: listTasks({ window: 'overdue' })
+  }
+}
